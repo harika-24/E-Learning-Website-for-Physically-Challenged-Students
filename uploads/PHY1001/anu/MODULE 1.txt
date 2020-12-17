@@ -1,0 +1,661 @@
+1) a)  COSINE SIMILARITY
+import math
+from textblob import TextBlob as tb
+
+document1 = tb("""Alastair Cook broke the news of retirement from international cricket to his England 
+teammates as they celebrated Sunday’s series victory over India in Southampton, with tributes then
+pouring in after the news became public the next day. The 33-year-old will start the 161st and final 
+Test match of his record-breaking career at the Oval on Friday in what will doubtless be a 
+congratulatory send-off after admitting, amid a personal struggle for runs this summer, 
+that “there is nothing left in the tank”..""")
+
+document2 = tb("""Former England skipper Alastair Cook on Monday announced that he
+will retire from international cricket after the ongoing Test series against India.
+”After much thought and deliberation over the last few months I have decided to announce 
+my retirement from international cricket at the end of this Test series against India,” 
+Cook said in a statement.Cook will appear in his 161st, which is his final Test, for England
+at The Oval, starting from September 7. Cook has scored 12,254 runs which includes 32 centuries.""")
+
+document3 = tb("""The 33-year-old, who will retire as England's leading run-scorer in Tests, 
+a mantle he may well hold until the sun goes down on the game itself, has always had an 
+understated sense of humour. On Wednesday, with the end in sight, he was at ease and the 
+handbrake was released.""")
+
+import re, math
+from collections import Counter
+
+WORD = re.compile(r'\w+')
+
+def get_cosine(vec1, vec2):
+     intersection = set(vec1.keys()) & set(vec2.keys())
+     numerator = sum([vec1[x] * vec2[x] for x in intersection])
+
+     sum1 = sum([vec1[x]**2 for x in vec1.keys()])
+     sum2 = sum([vec2[x]**2 for x in vec2.keys()])
+     denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+     if not denominator:
+        return 0.0
+     else:
+        return float(numerator) / denominator
+
+def text_to_vector(text):
+     words = WORD.findall(text)
+     return Counter(words)
+
+text1 = str(document1)
+text2 = str(document2)
+
+vector1 = text_to_vector(text1)
+vector2 = text_to_vector(text2)
+
+cosine = get_cosine(vector1, vector2)
+
+print ('Cosine:', cosine)
+
+
+
+
+   b) PAGE RANK
+
+import numpy as np
+from scipy.sparse import csc_matrix
+
+def pageRank(G, s = .85, maxerr = .0001):
+    """
+    Computes the pagerank for each of the n states
+    Parameters
+    ----------
+    G: matrix representing state transitions
+       Gij is a binary value representing a transition from state i to j.
+    s: probability of following a transition. 1-s probability of teleporting
+       to another state.
+    maxerr: if the sum of pageranks between iterations is bellow this we will
+            have converged.
+    """
+    n = G.shape[0]
+
+    # transform G into markov matrix A
+    A = csc_matrix(G,dtype=np.float)
+    rsums = np.array(A.sum(1))[:,0]
+    ri, ci = A.nonzero()
+    A.data /= rsums[ri]
+
+    # bool array of sink states
+    sink = rsums==0
+
+    # Compute pagerank r until we converge
+    ro, r = np.zeros(n), np.ones(n)
+    while np.sum(np.abs(r-ro)) > maxerr:
+        ro = r.copy()
+        # calculate each pagerank at a time
+        for i in xrange(0,n):
+            # inlinks of state i
+            Ai = np.array(A[:,i].todense())[:,0]
+            # account for sink states
+            Di = sink / float(n)
+            # account for teleportation to state i
+            Ei = np.ones(n) / float(n)
+
+            r[i] = ro.dot( Ai*s + Di*s + Ei*(1-s) )
+
+    # return normalized pagerank
+    return r/float(sum(r))
+
+
+
+
+if __name__=='__main__':
+    # Example extracted from 'Introduction to Information Retrieval'
+    G = np.array([[0,0,1,0,0,0,0],
+                  [0,1,1,0,0,0,0],
+                  [1,0,1,1,0,0,0],
+                  [0,0,0,1,1,0,0],
+                  [0,0,0,0,0,0,1],
+                  [0,0,0,0,0,1,1],
+                  [0,0,0,1,1,0,1]])
+    print pageRank(G,s=.86)
+
+
+2)
+
+from collections import defaultdict 
+  
+# function for adding edge to graph 
+graph = defaultdict(list) 
+def addEdge(graph,u,v): 
+    graph[u].append(v) 
+  
+# definition of function 
+def generate_edges(graph): 
+    edges = [] 
+  
+    # for each node in graph 
+    for node in graph: 
+          
+        # for each neighbour node of a single node 
+        for neighbour in graph[node]: 
+              
+            # if edge exists then append 
+            edges.append((node, neighbour)) 
+    return edges 
+
+addEdge(graph,'a','c') 
+addEdge(graph,'b','c') 
+addEdge(graph,'b','e') 
+addEdge(graph,'c','d') 
+addEdge(graph,'c','e') 
+addEdge(graph,'c','a') 
+addEdge(graph,'c','b') 
+addEdge(graph,'e','b') 
+addEdge(graph,'d','c') 
+addEdge(graph,'e','c') 
+  
+# Driver Function call  
+# to print generated graph 
+print(generate_edges(graph)) 
+
+
+
+def degree_centrality(G):
+    centrality={}
+    s=1.0/(len(G)-1.0)
+    centrality=dict((n,d*s) for n,d in G.degree_iter())
+    return centrality
+
+def in_degree_centrality(G):
+    if not G.is_directed():
+        raise nx.NetworkXError("Not for Undirected Graphs")
+    centrality={}
+    s=1.0/(len(G)-1.0)
+    centrality=dict((n,d*s) for n,d in G.in_degree_iter())
+    return centrality
+
+def out_degree_centrality(G):
+    if not G.is_directed():
+        raise nx.NetworkXError("Not for Undirected Graphs")
+    centrality={}
+    s=1.0/(len(G)-1.0)
+    centrality=dict((n,d*s) for n,d in G.out_degree_iter())
+    return centrality
+
+
+from heapq import heappush, heappop
+from itertools import count
+import networkx as nx
+import random
+
+
+def edge_betweenness_centrality(G, k=None, normalized=True, weight=None,seed=None):
+    betweenness = dict.fromkeys(G, 0.0)  # b[v]=0 for v in G
+    # b[e]=0 for e in G.edges()
+    betweenness.update(dict.fromkeys(G.edges(), 0.0))
+    if k is None:
+        nodes = G
+    else:
+        random.seed(seed)
+        nodes = random.sample(G.nodes(), k)
+    for s in nodes:
+        # single source shortest paths
+        if weight is None:  # use BFS
+            S, P, sigma = _single_source_shortest_path_basic(G, s)
+        else:  # use Dijkstra's algorithm
+            S, P, sigma = _single_source_dijkstra_path_basic(G, s, weight)
+        # accumulation
+        betweenness = _accumulate_edges(betweenness, S, P, sigma, s)
+    # rescaling
+    for n in G:  # remove nodes to only return edges
+        del betweenness[n]
+    betweenness = _rescale_e(betweenness, len(G),
+                             normalized=normalized,
+                             directed=G.is_directed())
+    return betweenness
+
+
+3)NAIVE BAYES CLASSIFIER
+
+from collections import Counter, defaultdict
+from evaluators import *
+import load_data as ld
+import numpy as np
+
+class NaiveBaseClass:
+    def calculate_relative_occurences(self, list1):
+        no_examples = len(list1)
+        ro_dict = dict(Counter(list1))
+        for key in ro_dict.keys():
+            ro_dict[key] = ro_dict[key] / float(no_examples)
+        return ro_dict
+
+    def get_max_value_key(self, d1):
+        values = d1.values()
+        keys = d1.keys()
+        max_value_index = values.index(max(values))
+        max_key = keys[max_value_index]
+        return max_key
+        
+    def initialize_nb_dict(self):
+        self.nb_dict = {}
+        for label in self.labels:
+            self.nb_dict[label] = defaultdict(list)
+
+class NaiveBayes(NaiveBaseClass):
+    """
+    Naive Bayes Classifier:
+    It is trained with a 2D-array X (dimensions m,n) and a 1D array Y (dimension 1,n).
+    X should have one column per feature (total m) and one row per training example (total n).
+    After training a dictionary is filled with the class probabilities per feature.
+    """
+    def train(self, X, Y):
+        self.labels = np.unique(Y)
+        no_rows, no_cols = np.shape(X)
+        self.initialize_nb_dict()
+        self.class_probabilities = self.calculate_relative_occurences(Y)
+        #fill self.nb_dict with the feature values per class
+        for label in self.labels:
+            row_indices = np.where(Y == label)[0]
+            X_ = X[row_indices, :]
+            no_rows_, no_cols_ = np.shape(X_)
+            for jj in range(0,no_cols_):
+                self.nb_dict[label][jj] += list(X_[:,jj])
+        #transform the dict which contains lists with all feature values 
+        #to a dict with relative feature value occurences per class
+        for label in self.labels:
+            for jj in range(0,no_cols):
+                self.nb_dict[label][jj] = self.calculate_relative_occurences(self.nb_dict[label][jj])
+
+    def classify_single_elem(self, X_elem):
+        Y_dict = {}
+        for label in self.labels:
+            class_probability = self.class_probabilities[label]
+            for ii in range(0,len(X_elem)):
+              relative_feature_values = self.nb_dict[label][ii]
+              if X_elem[ii] in relative_feature_values.keys():
+                class_probability *= relative_feature_values[X_elem[ii]]
+              else:
+                class_probability *= 0
+            Y_dict[label] = class_probability
+        return self.get_max_value_key(Y_dict)
+                    
+    def classify(self, X):
+        self.predicted_Y_values = []
+        no_rows, no_cols = np.shape(X)
+        for ii in range(0,no_rows):
+            X_elem = X[ii,:]
+            prediction = self.classify_single_elem(X_elem)
+            self.predicted_Y_values.append(prediction)
+        return self.predicted_Y_values
+
+            
+class NaiveBayesText(NaiveBaseClass):
+    """"
+    When the goal is classifying text, it is better to give the input X in the form of a list of lists containing words.
+    X = [
+    ['this', 'is', 'a',...],
+    (...)
+    ]
+    Y still is a 1D array / list containing the labels of each entry
+    """
+    def initialize_nb_dict(self):
+        self.nb_dict = {}
+        for label in self.labels:
+            self.nb_dict[label] = []
+            
+    def train(self, X, Y):
+        self.class_probabilities = self.calculate_relative_occurences(Y)
+        self.labels = np.unique(Y)
+        self.no_examples = len(Y)
+        self.initialize_nb_dict()
+        for ii in range(0,len(Y)):
+            label = Y[ii]
+            self.nb_dict[label] += X[ii]
+        #transform the list with all occurences to a dict with relative occurences
+        for label in self.labels:
+            self.nb_dict[label] = self.calculate_relative_occurences(self.nb_dict[label])
+                
+    def classify_single_elem(self, X_elem):
+        Y_dict = {}
+        for label in self.labels:
+            class_probability = self.class_probabilities[label]
+            nb_dict_features = self.nb_dict[label]
+            for word in X_elem:
+                if word in nb_dict_features.keys():
+                    relative_word_occurence = nb_dict_features[word]
+                    class_probability *= relative_word_occurence
+                else:
+                    class_probability *= 0
+            Y_dict[label] = class_probability
+        return self.get_max_value_key(Y_dict)
+
+    def classify(self, X):
+        self.predicted_Y_values = []
+        n = len(X)
+        for ii in range(0,n):
+            X_elem = X[ii]
+            prediction = self.classify_single_elem(X_elem)
+            self.predicted_Y_values.append(prediction)  
+        return self.predicted_Y_values
+
+####
+
+
+X_train, Y_train, X_test, Y_test = ld.amazon_reviews()
+print("training naive bayes")
+nbc = NaiveBayesText()
+nbc.train(X_train, Y_train)
+print("trained")
+predicted_Y = nbc.classify(X_test[:100])
+y_labels = np.unique(Y_test)
+for y_label in y_labels:
+    f1 = f1_score(predicted_Y, Y_test, y_label)
+    print("F1-score on the test-set for class %s is: %s" % (y_label, f1))
+
+    
+X_train, Y_train, X_test, Y_test = ld.adult()
+print("training naive bayes")
+nbc = NaiveBayes()
+nbc.train(X_train, Y_train)
+print("trained")
+predicted_Y = nbc.classify(X_test)
+y_labels = np.unique(Y_test)
+for y_label in y_labels:
+    f1 = f1_score(predicted_Y, Y_test, y_label)
+    print("F1-score on the test-set for class %s is: %s" % (y_label, f1))
+
+
+4)DIRECTED GRAPH
+
+from collections import defaultdict 
+  
+# function for adding edge to graph 
+graph = defaultdict(list) 
+def addEdge(graph,u,v): 
+    graph[u].append(v) 
+  
+# definition of function 
+def generate_edges(graph): 
+    edges = [] 
+  
+    # for each node in graph 
+    for node in graph: 
+          
+        # for each neighbour node of a single node 
+        for neighbour in graph[node]: 
+              
+            # if edge exists then append 
+            edges.append((node, neighbour)) 
+    return edges 
+  
+# declaration of graph as dictionary 
+addEdge(graph,'a','c') 
+addEdge(graph,'b','c') 
+addEdge(graph,'b','e') 
+addEdge(graph,'c','d') 
+addEdge(graph,'c','e') 
+addEdge(graph,'c','a') 
+addEdge(graph,'c','b') 
+addEdge(graph,'e','b') 
+addEdge(graph,'d','c') 
+addEdge(graph,'e','c') 
+  
+# Driver Function call  
+# to print generated graph 
+print(generate_edges(graph)) 
+
+
+5)
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+G=nx.erdos_renyi_graph(50,0.5)
+nx.draw(G,with_labels=True)
+plt.show()
+
+cc=nx.average_clustering(G)#global cc
+c=nx.clustering(G)#local CC
+
+
+6)
+
+
+import numpy as np 
+import pandas as pd 
+from sklearn.metrics import confusion_matrix 
+from sklearn.cross_validation import train_test_split 
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.metrics import accuracy_score 
+from sklearn.metrics import classification_report 
+  
+# Function importing Dataset 
+def importdata(): 
+    balance_data = pd.read_csv( 
+'https://archive.ics.uci.edu/ml/machine-learning-'+
+'databases/balance-scale/balance-scale.data', 
+    sep= ',', header = None) 
+      
+    # Printing the dataswet shape 
+    print ("Dataset Lenght: ", len(balance_data)) 
+    print ("Dataset Shape: ", balance_data.shape) 
+      
+    # Printing the dataset obseravtions 
+    print ("Dataset: ",balance_data.head()) 
+    return balance_data 
+  
+# Function to split the dataset 
+def splitdataset(balance_data): 
+  
+    # Seperating the target variable 
+    X = balance_data.values[:, 1:5] 
+    Y = balance_data.values[:, 0] 
+  
+    # Spliting the dataset into train and test 
+    X_train, X_test, y_train, y_test = train_test_split(  
+    X, Y, test_size = 0.3, random_state = 100) 
+      
+    return X, Y, X_train, X_test, y_train, y_test 
+      
+# Function to perform training with giniIndex. 
+def train_using_gini(X_train, X_test, y_train): 
+  
+    # Creating the classifier object 
+    clf_gini = DecisionTreeClassifier(criterion = "gini", 
+            random_state = 100,max_depth=3, min_samples_leaf=5) 
+  
+    # Performing training 
+    clf_gini.fit(X_train, y_train) 
+    return clf_gini 
+      
+# Function to perform training with entropy. 
+def tarin_using_entropy(X_train, X_test, y_train): 
+  
+    # Decision tree with entropy 
+    clf_entropy = DecisionTreeClassifier( 
+            criterion = "entropy", random_state = 100, 
+            max_depth = 3, min_samples_leaf = 5) 
+  
+    # Performing training 
+    clf_entropy.fit(X_train, y_train) 
+    return clf_entropy 
+  
+  
+# Function to make predictions 
+def prediction(X_test, clf_object): 
+  
+    # Predicton on test with giniIndex 
+    y_pred = clf_object.predict(X_test) 
+    print("Predicted values:") 
+    print(y_pred) 
+    return y_pred 
+      
+# Function to calculate accuracy 
+def cal_accuracy(y_test, y_pred): 
+      
+    print("Confusion Matrix: ", 
+        confusion_matrix(y_test, y_pred)) 
+      
+    print ("Accuracy : ", 
+    accuracy_score(y_test,y_pred)*100) 
+      
+    print("Report : ", 
+    classification_report(y_test, y_pred)) 
+  
+# Driver code 
+def main(): 
+      
+    # Building Phase 
+    data = importdata() 
+    X, Y, X_train, X_test, y_train, y_test = splitdataset(data) 
+    clf_gini = train_using_gini(X_train, X_test, y_train) 
+    clf_entropy = tarin_using_entropy(X_train, X_test, y_train) 
+      
+    # Operational Phase 
+    print("Results Using Gini Index:") 
+      
+    # Prediction using gini 
+    y_pred_gini = prediction(X_test, clf_gini) 
+    cal_accuracy(y_test, y_pred_gini) 
+      
+    print("Results Using Entropy:") 
+    # Prediction using entropy 
+    y_pred_entropy = prediction(X_test, clf_entropy) 
+    cal_accuracy(y_test, y_pred_entropy) 
+      
+      
+# Calling main function 
+if __name__=="__main__": 
+    main() 
+
+
+7)
+
+
+
+8)
+import networkx as nx
+G=nx.erdos_renyi_graph(50,0.5)
+
+import networkx as nx
+from networkx.exception import NetworkXError
+
+def hits(G,max_iter=1000,tol=1.0e-8,nstart=None,normalized=True):
+    if type(G) == nx.MultiGraph or type(G) == nx.MultiDiGraph:
+        raise Exception("hits() not defined for graphs with multiedges.")
+    if len(G) == 0:
+        return {},{}
+    # choose fixed starting vector if not given
+    if nstart is None:
+        h=dict.fromkeys(G,1.0/G.number_of_nodes())
+    else:
+        h=nstart
+        # normalize starting vector
+        s=1.0/sum(h.values())
+        for k in h:
+            h[k]*=s
+    i=0
+    
+    while True: # power iteration: make up to max_iter iterations
+        hlast=h
+        h=dict.fromkeys(hlast.keys(),0)
+        a=dict.fromkeys(hlast.keys(),0)
+        # this "matrix multiply" looks odd because it is
+        # doing a left multiply a^T=hlast^T*G
+        for n in h:
+            for nbr in G[n]:
+                a[nbr]+=hlast[n]*G[n][nbr].get('weight',1)
+        # now multiply h=Ga
+        for n in h:
+            for nbr in G[n]:
+                h[n]+=a[nbr]*G[n][nbr].get('weight',1)
+        # normalize vector
+        s=1.0/max(h.values())
+        for n in h: h[n]*=s
+        # normalize vector
+        s=1.0/max(a.values())
+        for n in a: a[n]*=s
+        # check convergence, l1 norm
+        err=sum([abs(h[n]-hlast[n]) for n in h])
+        if err < tol:
+            break
+        if i>max_iter:
+            raise NetworkXError(\
+            "HITS: power iteration failed to converge in %d iterations."%(i+1))
+        i+=1
+        
+        if normalized:
+            s = 1.0/sum(a.values())
+        for n in a:
+            a[n] *= s
+        s = 1.0/sum(h.values())
+        for n in h:
+            h[n] *= s
+    return h,a
+
+hits(G)
+
+
+11)
+
+import math
+from textblob import TextBlob as tb
+
+def tf(word, blob):
+    return blob.words.count(word) / len(blob.words)
+
+def n_containing(word, bloblist):
+    return sum(1 for blob in bloblist if word in blob)
+
+def idf(word, bloblist):
+    return math.log(len(bloblist) / (1 + n_containing(word, bloblist)))
+
+def tfidf(word, blob, bloblist):
+    return tf(word, blob) * idf(word, bloblist)
+
+
+document1 = tb("""Alastair Cook broke the news of retirement from international cricket to his England 
+teammates as they celebrated Sunday’s series victory over India in Southampton, with tributes then
+pouring in after the news became public the next day. The 33-year-old will start the 161st and final 
+Test match of his record-breaking career at the Oval on Friday in what will doubtless be a 
+congratulatory send-off after admitting, amid a personal struggle for runs this summer, 
+that “there is nothing left in the tank”..""")
+
+document2 = tb("""Former England skipper Alastair Cook on Monday announced that he
+will retire from international cricket after the ongoing Test series against India.
+”After much thought and deliberation over the last few months I have decided to announce 
+my retirement from international cricket at the end of this Test series against India,” 
+Cook said in a statement.Cook will appear in his 161st, which is his final Test, for England
+at The Oval, starting from September 7. Cook has scored 12,254 runs which includes 32 centuries.""")
+
+document3 = tb("""The 33-year-old, who will retire as England's leading run-scorer in Tests, 
+a mantle he may well hold until the sun goes down on the game itself, has always had an 
+understated sense of humour. On Wednesday, with the end in sight, he was at ease and the 
+handbrake was released.""")
+
+bloblist = [document1, document2, document3]
+
+for i, blob in enumerate(bloblist):
+    print("Top words in document {}".format(i + 1))
+    scores = {word: tfidf(word, blob, bloblist) for word in blob.words}
+    sorted_words = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    for word, score in sorted_words[:3]:
+        print("Word: {}, TF-IDF: {}".format(word, round(score, 5)))
+        
+
+
+12)
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+G=nx.erdos_renyi_graph(50,0.5)
+nx.draw(G,with_labels=True)
+plt.show()
+
+print(nx.average_shortest_path_length(G))
+
+
+
+
+
+
+

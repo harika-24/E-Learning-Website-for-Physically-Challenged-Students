@@ -1,0 +1,48 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title>hot</title>
+	<script type="text/javascript">
+		var Sp=window.SpeechRecognition || window.webkitSpeechRecognition;
+		
+		var rec=new Sp();
+		
+		
+		
+		rec.interimResults=true;
+		rec.onresult=function(event){
+			var las=event.results.length-1;
+			var p=event.results[las][0].transcript;
+			document.getElementById('res').innerHTML=p;
+
+		}
+		rec.onspeechend=function(){
+			alert(document.getElementById('res').innerHTML);
+		}
+		rec.onstart=function(){
+			document.getElementById('re').innerHTML="started";	
+		}
+		function fu()
+		{
+			rec.start();		
+		}
+		function my(d)
+		{
+			var msg=new SpeechSynthesisUtterance(d);
+			msg.lang="en-US";
+			speechSynthesis.speak(msg);
+			setTimeout(fu,3000);
+
+		}
+		
+	</script>
+</head>
+<body>
+
+<form>
+	<p onkeyup="my('name')">NAME:</p><button onkeyup="my('please  say your name');" onclick="fu();">klsf</button>
+</form>
+
+<p id="re"></p>
+</body>
+</html>

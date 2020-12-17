@@ -1,0 +1,13 @@
+form{
+			margin-top: 250px;
+			margin-left: 500px;
+			border: 2px solid black;
+			width: 300px;
+			padding: 10px;
+		}
+#suq{
+	text-align: center;
+}
+body{
+	background-color: grey;
+}

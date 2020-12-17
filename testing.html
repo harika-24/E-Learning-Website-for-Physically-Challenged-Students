@@ -1,0 +1,118 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title>test</title>
+	
+	<script type="text/javascript">
+		var p=[];
+		var name1="";
+		var age1="";
+		var uid1="";
+		var pass1="";
+		var pass21="";
+		var sp=window.SpeechRecogniton || window.webkitSpeechRecognition;
+		var name=new sp();
+		//age.continuous=false;
+		//age.onresult=function(event){
+			//		var curr=event.resultIndex;
+			//		var t=event.results[curr][0].transcript;
+			//		age1=t;				
+			//		
+		//}
+
+		/*uid.continuous=false;
+		uid.onresult=function(event){
+					var curr=event.resultIndex;
+					var t=event.results[curr][0].transcript;
+					uid1=t;				
+					
+		}
+
+		pass.continuous=false;
+		pass.onresult=function(event){
+					var curr=event.resultIndex;
+					var t=event.results[curr][0].transcript;
+					pass1=t;				
+					
+		}
+
+		pass2.continuous=false;
+		pass2.onresult=function(event){
+					var curr=event.resultIndex;
+					var t=event.results[curr][0].transcript;
+					pass21=t;				
+					
+		}*/
+		function my(d)
+		{
+			
+			var msg=new SpeechSynthesisUtterance(d);
+			msg.lang="en-US";
+			speechSynthesis.speak(msg);
+			if(e.keyCode==13)
+			{
+				alert('ok');
+			}
+		}
+		function speech()
+		{
+			
+			document.getElementById('res').innerHTML="start";
+		}
+		name.continuous=true;
+		name.onstart=function(){
+			document.getElementById('res').innerHTML="start";
+		}
+		name.onresult=function(event){
+					var curr=event.results.length-1;
+					var t=event.results[curr][0].transcript;
+					name1=t;	
+					document.getElementById('res').innerHTML=name1;
+					
+		}
+		name.onspeechend=function()
+		{
+			document.getElementById('res').innerHTML=name1;
+			name.stop();
+
+		}
+		function stop(d)
+		{
+			name.stop();
+		}
+	</script>
+</head>
+<body>
+<form>
+	<table>
+		<tr>
+			<th tabindex="1" onkeyup="my('name')">NAME:</th>		
+			<td><button tabindex="2" onkeyup="my('press for speech')" onclick="speech();">speak</button></td>
+			<!---<td><button tabindex="2" onkeyup="my('press for speech')" onclick="stop('name')">stop</button></td>--->
+		</tr><!---
+		<tr>
+			<th tabindex="3" onkeyup="my('age')">AGE:</th>
+			<td><button tabindex="4" onkeyup="my('press for speech')" onclick="speech('age');">speak</button></td>
+			<td><button tabindex="4" onkeyup="my('press for speech')" onclick="stop('age');">stop</button></td>
+		</tr>
+		<tr>
+			<th tabindex="5" onkeyup="my('username')">USERNAME:</th>
+			<td><button tabindex="6" onkeyup="my('press for speech')" onclick="speech('username');">speak</button></td>
+			<td><button tabindex="6" onkeyup="my('press for speech')" onclick="stop('username');">stop</button></td>
+		</tr>
+		<tr>
+			<th tabindex="7" onkeyup="my('password')">PASSWORD:</th>
+			<td><button tabindex="8" onkeyup="my('press for speech')" onclick="speech('pwd');">speak</button></td>
+			<td><button tabindex="8" onkeyup="my('press for speech')" onclick="stop('pwd');">speak</button></td>
+		</tr>
+		<tr>
+			<th tabindex="9" onkeyup="my('re enter password')">CONFIRM PASSWORD:</th>
+			<td><button tabindex="10" onkeyup="my('press for speech')" onclick="speech('cnpwd')">speak</button></td>
+		</tr>--->
+
+	</table>
+</form>
+<p id="res">kjhkj</p>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript">
+		var alpha=[];
+		window.onload=function()
+		{
+			var msg=new SpeechSynthesisUtterance("YOU HAVE ENTERED SIGNUP PAGE FOR BLIND USERS");
+			msg.lang="en-US";
+			speechSynthesis.speak(msg);			
+		}
+
+		function my(event,d) {
+
+			var s=event.code;
+			var o=s[3];
+				
+
+			
+			if(event.code=='Tab')
+			{
+				var msg=new SpeechSynthesisUtterance("PLEASE ENTER YOUR "+d+" USING KEYBOARD AND ENTER FOR COMPLETION");
+				msg.lang="en-US";
+				speechSynthesis.speak(msg);
+				document.getElementById("f"+d).innerHTML="";
+			}
+			else if(event.keyCode==8)
+			{
+				var p=document.getElementById('f'+d);
+				var l=p.innerHTML;
+				l=l.slice(0,-1);
+				p.innerHTML=l;
+				alpha[d]=l;
+			}
+			else if(event.keyCode>=48 && event.keyCode<=57)
+			{
+				var num=event.keyCode-48;
+				var p=document.getElementById('f'+d);
+				var l=p.innerHTML;
+				
+				l=l+num;
+				p.innerHTML=l;	
+				alpha[d]=l;
+				var msg=new SpeechSynthesisUtterance(num);
+				msg.lang="en-US";
+				speechSynthesis.speak(msg);
+			}
+			else
+			{
+				var p=document.getElementById('f'+d);
+				var l=p.innerHTML;
+				
+				l=l+o;
+				p.innerHTML=l;	
+				alpha[d]=l;
+				var msg=new SpeechSynthesisUtterance(o);
+				msg.lang="en-US";
+				speechSynthesis.speak(msg);
+								
+				
+			}
+
+		}
+		function da()
+		{
+			window.location="blindsign.php?a="+alpha;
+		}
+		
+		function sp(d)
+		{
+			
+			var msg=new SpeechSynthesisUtterance(d);
+			msg.lang="en-US";
+			speechSynthesis.speak(msg);
+		}
+		function dp(d)
+		{
+			d=d.substring(1);
+			d="f"+d;
+			var f=document.getElementById(d).innerHTML;
+			var msg=new SpeechSynthesisUtterance(f);
+			msg.lang="en-US";
+			speechSynthesis.speak(msg);
+		}
+
+	</script>
+</head>
+<body>
+	<form action="blindsign.php" method="post">
+		<p tabindex="1" onkeyup="sp('name');">NAME:</p><input type="text" id="name" onkeyup="my(event,'name');"  tabindex="2" name="name"><br><p id="cname" tabindex="3" onkeyup="dp('cname');">chech name</p>
+		<p tabindex="4" onkeyup="sp('age');">AGE:</p><input type="text" id="age" onkeyup="my(event,'age');" tabindex="5" name="age"><br><p id="cage" tabindex="6" onkeyup="dp('cage');">check age</p>
+		<p tabindex="7" onkeyup="sp('username');">USERNAME:</p><input type="text" id="username" onkeyup="my(event,'username');" tabindex="8" name="uid"><br><p id="cusernme" tabindex="9" onkeyup="dp('cusername');">check username</p>
+		<p tabindex="10" onkeyup="sp('password');">PASSWORD:</p><input type="text" id="pwd" onkeyup="my(event,'pwd');" tabindex="11" name="pwd"><br><p id="cpwd" tabindex="12" onkeyup="dp('cpwd');">check pwd</p>
+		<p tabindex="13" onkeyup="sp('confirm password');">CONFIRM PASSWORD:</p><input type="text" id="cnpwd" onkeyup="my(event,'cnpwd');" tabindex="14" name="pwd2"><br><p id="ccnpwd" tabindex="15" onkeyup="dp('ccnpwd');">check confirm pwassword</p>
+		<p tabindex="16" onkeyup="sp('date of birth');">DOB:</p><input type="text" id="dob" onkeyup="my(event,'dob');" tabindex="17" name="dob"><br><p id="cdob" tabindex="18" onkeyup="dp('cdob');">check dob</p>
+		<input type="submit" name="submit" tabindex="19" onkeyup="sp('submit');">
+	</form>
+	<a href="blindlog.php" onkeyup="sp('login page');">login</a>
+	
+<p id='fname'></p>
+<br><p id="fage"></p>
+<br><p id="fusername"></p>
+<br><p id="fpwd"></p>
+<br><p id="fcnpwd"></p>
+<br><p id="fdob"></p>
+</body>
+</html>
